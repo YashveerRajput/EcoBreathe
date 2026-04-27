@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ecobreathe-api
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      # Add any other environment variables you have in your .env file here:
+      # - key: DATABASE_URL
+      #   sync: false
