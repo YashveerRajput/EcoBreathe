@@ -172,7 +172,7 @@ const App = () => {
               <ShieldCheck size={40} color="#ef4444" />
               <div>
                 <h3 style={{ marginBottom: '0.5rem' }}>Understanding the Impact</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Research shows that breathing air with an AQI of 22 for 24 hours is equivalent to smoking one cigarette.</p>
+                <p style={{ color: 'var(--text-secondary)' }}>Research shows that breathing air with an AQI of 75 for 24 hours is equivalent to smoking one cigarette.</p>
               </div>
             </div>
           </motion.section>
