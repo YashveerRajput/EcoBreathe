@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import PollutantDetailsModal from './PollutantDetailsModal';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = import.meta.env.PROD ? 'https://ecobreathe-awv5.onrender.com/api' : 'http://localhost:5000/api';
 
 const App = () => {
   const [data, setData] = useState(null);
