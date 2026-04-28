@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DustEffect from './DustEffect';
+import FeatureCards from './FeatureCards';
 
 const TOTAL_FRAMES = 80;
 const FRAME_PATH = (n) => `/motion/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
@@ -354,15 +355,7 @@ export default function LandingPage() {
           <p className="section-eyebrow">Built Different</p>
           <h2 className="section-heading">Every detail engineered<br />for cleaner air.</h2>
         </div>
-        <div className="features-grid">
-          {features.map((f, i) => (
-            <div key={i} className="feature-card">
-              <div className="feature-icon">{f.icon}</div>
-              <h3 className="feature-title">{f.title}</h3>
-              <p className="feature-desc">{f.desc}</p>
-            </div>
-          ))}
-        </div>
+        <FeatureCards />
       </section>
 
       {/* ── INTERACTIVE COMPONENT SHOWCASE ────────────────────────── */}
