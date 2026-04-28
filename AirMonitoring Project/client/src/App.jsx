@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Wind, Droplets, Thermometer, Activity, Zap, RefreshCw, Settings, ShieldCheck, ArrowUpRight, ExternalLink } from 'lucide-react';
+import { Wind, Droplets, Thermometer, Activity, Zap, RefreshCw, Settings, ShieldCheck, ArrowUpRight, ExternalLink, MapPin, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import PollutantDetailsModal from './PollutantDetailsModal';
 
 const API_BASE = import.meta.env.PROD ? 'https://ecobreathe-awv5.onrender.com/api' : 'http://localhost:5000/api';
@@ -37,9 +37,11 @@ const App = () => {
 
   const getAQIStatus = (aqi) => {
     if (aqi <= 50) return { label: 'Good', color: '#10b981', desc: 'Air quality is satisfactory.' };
-    if (aqi <= 100) return { label: 'Satisfactory', color: '#84cc16', desc: 'Acceptable air quality.' };
-    if (aqi <= 200) return { label: 'Moderate', color: '#f59e0b', desc: 'May cause breathing discomfort.' };
-    return { label: 'Poor', color: '#ef4444', desc: 'Health effects may be serious.' };
+    if (aqi <= 100) return { label: 'Moderate', color: '#eab308', desc: 'Acceptable air quality.' };
+    if (aqi <= 150) return { label: 'Poor', color: '#f97316', desc: 'May cause breathing discomfort.' };
+    if (aqi <= 200) return { label: 'Unhealthy', color: '#ef4444', desc: 'Health effects may be serious.' };
+    if (aqi <= 300) return { label: 'Severe', color: '#a855f7', desc: 'Health warnings of emergency conditions.' };
+    return { label: 'Hazardous', color: '#7f1d1d', desc: 'Health alert: everyone may experience more serious health effects.' };
   };
 
   const getReadingStatus = (type, value) => {
@@ -48,16 +50,25 @@ const App = () => {
       pm10: [50, 100, 250, 350, 430],
       co: [1, 2, 10, 17, 34],
       no2: [40, 80, 180, 280, 400],
-      vocs: [0.2, 0.6, 2.0, 3.0, 5.0]
+      nh3: [0.2, 0.6, 2.0, 3.0, 5.0]
     };
     const labels = ['Good', 'Satisfactory', 'Moderate', 'Poor', 'Very Poor', 'Severe'];
     const colors = ['#10b981', '#84cc16', '#f59e0b', '#f97316', '#ef4444', '#7f1d1d'];
     
-    const thresholds = standards[type.toLowerCase()];
+    const thresholds = standards[type.toLowerCase()] || standards['pm25'];
     let index = 0;
     while(index < thresholds.length && value > thresholds[index]) index++;
     
     return { label: labels[index], color: colors[index] };
+  };
+
+  const getSafetyAdvice = (aqi) => {
+    if (aqi <= 50) return { title: "Clear Air", advice: "Air quality is ideal. Feel free to open windows and engage in outdoor activities.", color: "#10b981" };
+    if (aqi <= 100) return { title: "Moderate Air", advice: "Air quality is acceptable. Sensitive groups should monitor symptoms if outdoors.", color: "#eab308" };
+    if (aqi <= 150) return { title: "Sensitive Groups Alert", advice: "Limit prolonged outdoor exertion. Consider using air purifiers in living areas.", color: "#f97316" };
+    if (aqi <= 200) return { title: "Unhealthy Air", advice: "Wear an N95 mask outdoors. Keep windows closed and run air purifiers on high.", color: "#ef4444" };
+    if (aqi <= 300) return { title: "Very Unhealthy", advice: "Avoid all outdoor activities. Seal window gaps and stay in rooms with filtration.", color: "#a855f7" };
+    return { title: "Hazardous Conditions", advice: "Emergency conditions. Evacuate to a cleaner area or use advanced filtration.", color: "#7f1d1d" };
   };
 
   const isStale = data ? (Date.now() - new Date(data.lastUpdated).getTime()) > 30000 : true;
@@ -106,28 +117,67 @@ const App = () => {
                   <SmallReadingCard label="CO" value={data.co} unit="ppm" status={getReadingStatus('co', data.co)} />
                   <SmallReadingCard label="NO2" value={data.no2} unit="µg/m³" status={getReadingStatus('no2', data.no2)} />
                   <div style={{ gridColumn: 'span 2' }}>
-                    <SmallReadingCard label="VOCs" value={data.vocs} unit="ppm" status={getReadingStatus('vocs', data.vocs)} horizontal />
+                    <SmallReadingCard label="NH3" value={data.nh3 !== undefined ? data.nh3 : data.vocs} unit="ppm" status={getReadingStatus('nh3', data.nh3 !== undefined ? data.nh3 : data.vocs)} horizontal />
                   </div>
                 </div>
               </section>
             </div>
 
+            <div className="glass-card" style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)' }}>
+              <h3 style={{ fontSize: '1.1rem', marginBottom: '1.5rem' }}>Air Quality Scale</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Good</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>0-50</div></div>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Moderate</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>51-100</div></div>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Poor</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>101-150</div></div>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Unhealthy</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>151-200</div></div>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Severe</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>201-300</div></div>
+                <div style={{ textAlign: 'center', flex: '1 1 15%' }}><div style={{ fontWeight: 600, fontSize: '0.85rem' }}>Hazardous</div><div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>301-500+</div></div>
+              </div>
+              <div style={{ position: 'relative', height: '16px', borderRadius: '8px', display: 'flex', overflow: 'hidden' }}>
+                <div style={{ flex: 1, background: '#10b981' }}></div>
+                <div style={{ flex: 1, background: '#eab308' }}></div>
+                <div style={{ flex: 1, background: '#f97316' }}></div>
+                <div style={{ flex: 1, background: '#ef4444' }}></div>
+                <div style={{ flex: 1, background: '#a855f7' }}></div>
+                <div style={{ flex: 1, background: '#7f1d1d' }}></div>
+              </div>
+              <div style={{ position: 'relative', marginTop: '-20px' }}>
+                <div style={{
+                  position: 'absolute',
+                  left: `calc(${
+                    data.aqi <= 50 ? (data.aqi / 50) * 16.66 :
+                    data.aqi <= 100 ? 16.66 + ((data.aqi - 50) / 50) * 16.66 :
+                    data.aqi <= 150 ? 33.33 + ((data.aqi - 100) / 50) * 16.66 :
+                    data.aqi <= 200 ? 50 + ((data.aqi - 150) / 50) * 16.66 :
+                    data.aqi <= 300 ? 66.66 + ((data.aqi - 200) / 100) * 16.66 :
+                    Math.min(100, 83.33 + ((data.aqi - 300) / 200) * 16.66)
+                  }% - 12px)`,
+                  width: '24px',
+                  height: '24px',
+                  background: '#fff',
+                  border: '4px solid #1e1e30',
+                  borderRadius: '50%',
+                  top: '-4px',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                  transition: 'left 1s ease'
+                }} />
+              </div>
+            </div>
+
             <section className="glass-card chart-container" style={{ marginTop: '2rem' }}>
               <h3 style={{ marginBottom: '1.5rem' }}>AQI Trend (Last 24 Hours)</h3>
               <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={history}>
-                  <defs>
-                    <linearGradient id="colorAqi" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
+                <BarChart data={history} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip contentStyle={{ background: '#1e1e30', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} />
-                  <Area type="monotone" dataKey="aqi" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorAqi)" />
-                </AreaChart>
+                  <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ background: '#1e1e30', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} itemStyle={{ color: '#fff' }} />
+                  <Bar dataKey="aqi" radius={[6, 6, 0, 0]}>
+                    {history.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getAQIStatus(entry.aqi).color} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </section>
           </motion.div>
@@ -141,7 +191,7 @@ const App = () => {
               <PollutantRow name="PM10" fullName="Coarse Particulate Matter" value={data.pm10} unit="µg/m³" status={getReadingStatus('pm10', data.pm10).label} desc="Inhalable particles between 2.5 and 10µm deposited in airways." onSelect={setSelectedPollutant} />
               <PollutantRow name="NO2" fullName="Nitrogen Dioxide" value={data.no2} unit="µg/m³" status={getReadingStatus('no2', data.no2).label} desc="Gas linked to increased risk of respiratory problems." onSelect={setSelectedPollutant} />
               <PollutantRow name="CO" fullName="Carbon Monoxide" value={data.co} unit="ppm" status={getReadingStatus('co', data.co).label} desc="Colourless gas that can cause headache and nausea." onSelect={setSelectedPollutant} />
-              <PollutantRow name="VOCs" fullName="Volatile Organic Compounds" value={data.vocs} unit="ppm" status={getReadingStatus('vocs', data.vocs).label} desc="Chemicals found in cleaning products and paints." onSelect={setSelectedPollutant} />
+              <PollutantRow name="NH3" fullName="Ammonia" value={data.nh3 !== undefined ? data.nh3 : data.vocs} unit="ppm" status={getReadingStatus('nh3', data.nh3 !== undefined ? data.nh3 : data.vocs).label} desc="Colorless gas with a distinct odor, can irritate eyes and respiratory tract." onSelect={setSelectedPollutant} />
             </div>
           </motion.section>
         );
@@ -150,29 +200,50 @@ const App = () => {
           <motion.section initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} key="scale">
             <h2 className="section-title">Air Quality Scale</h2>
             <div className="impact-grid">
-              <ScaleCard type="good" title="Good" range="0-30 µg/m³" advice={["Minimal health risk", "Safe for all groups", "Normal outdoor activities recommended"]} />
-              <ScaleCard type="moderate" title="Moderate" range="61-90 µg/m³" advice={["Breathing discomfort for sensitive individuals", "Reduced stamina during physical activity"]} />
-              <ScaleCard type="poor" title="Poor" range="91-120 µg/m³" advice={["Breathing discomfort for most people", "Increased respiratory symptoms", "Avoid prolonged outdoor exertion"]} />
-              <ScaleCard type="very-poor" title="Very Poor" range="121-250 µg/m³" advice={["Respiratory illness on prolonged exposure", "Stays indoors with air purifiers"]} />
-              <ScaleCard type="severe" title="Severe" range=">250 µg/m³" advice={["Serious health effects for everyone", "Emergency conditions", "Use N95 masks if you go out"]} />
+              <ScaleCard type="good" title="Good" range="0-50" advice={["Minimal health risk", "Safe for all groups", "Normal outdoor activities recommended"]} />
+              <ScaleCard type="moderate" title="Moderate" range="51-100" advice={["Acceptable air quality", "Sensitive people should reduce outdoor exertion"]} />
+              <ScaleCard type="poor" title="Poor" range="101-150" advice={["Unhealthy for sensitive groups", "Increased symptoms for heart/lung disease"]} />
+              <ScaleCard type="unhealthy" title="Unhealthy" range="151-200" advice={["Everyone may begin to feel health effects", "Serious health effects for sensitive groups"]} />
+              <ScaleCard type="severe" title="Severe" range="201-300" advice={["Health warnings of emergency conditions", "Entire population is likely to be affected"]} />
+              <ScaleCard type="hazardous" title="Hazardous" range="301-500+" advice={["Serious health effects for everyone", "Emergency conditions", "Use N95 masks if you go out"]} />
             </div>
           </motion.section>
         );
       case 'protection':
+        const safety = getSafetyAdvice(data.aqi);
         return (
           <motion.section initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} key="protection">
-            <h2 className="section-title">Protection & Reduction</h2>
-            <div className="impact-grid">
+            <h2 className="section-title">Safety & Recommendations</h2>
+            
+            {/* Dynamic Advice Card */}
+            <div className="glass-card" style={{ marginBottom: '2rem', borderLeft: `6px solid ${safety.color}`, background: `${safety.color}05` }}>
+              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                <div style={{ background: `${safety.color}20`, padding: '1rem', borderRadius: '16px', color: safety.color }}>
+                  <ShieldCheck size={32} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem', color: safety.color }}>{safety.title} Recommendation</h3>
+                  <p style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: '1.5' }}>{safety.advice}</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 className="section-subtitle" style={{ marginBottom: '1.5rem' }}>General Protection Methods</h3>
+            <div className="impact-grid" style={{ marginBottom: '3rem' }}>
               <MethodCard title="Use HEPA Air Purifiers" efficiency="High" desc="HEPA filters capture 99.97% of particles 0.3 microns or larger." />
+              <MethodCard title="Close Doors & Windows" efficiency="High" desc="Keep outdoor pollutants out by sealing your home when AQI is high." />
+              <MethodCard title="Wear N95/P100 Masks" efficiency="High" desc="Use certified masks for outdoor activities on high pollution days." />
               <MethodCard title="Avoid Indoor Smoking" efficiency="High" desc="Cigarette smoke is a major source of PM2.5 indoors." />
               <MethodCard title="Proper Kitchen Ventilation" efficiency="High" desc="Use exhaust fans while cooking to remove PM2.5 releases." />
+              <MethodCard title="Limit Outdoor Exercise" efficiency="Medium" desc="Reduce heavy physical exertion outdoors when air quality is poor." />
               <MethodCard title="Wet Mopping Only" efficiency="Medium" desc="Dry sweeping kicks dust into the air. Use wet mops instead." />
+              <MethodCard title="Indoor Air Plants" efficiency="Low" desc="Snake plants and Peace Lilies can help filter minor indoor toxins." />
             </div>
             <div className="impact-banner" style={{ marginTop: '2rem' }}>
               <ShieldCheck size={40} color="#ef4444" />
               <div>
                 <h3 style={{ marginBottom: '0.5rem' }}>Understanding the Impact</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Research shows that breathing air with an AQI of 75 for 24 hours is equivalent to smoking one cigarette.</p>
+                <p style={{ color: 'var(--text-secondary)' }}>Research shows that breathing air with an AQI of 75 for 24 hours is equivalent to smoking one cigarette. Take these levels seriously to protect your long-term health.</p>
               </div>
             </div>
           </motion.section>
@@ -186,7 +257,12 @@ const App = () => {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', marginBottom: '2rem' }}>
         <div>
           <h1 className="gradient-text" style={{ fontSize: '2.5rem' }}>EcoBreathe</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Smart Air Intelligence</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Smart Air Intelligence</p>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              <MapPin size={12} color="#10b981" /> New Delhi, India
+            </span>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: window.innerWidth <= 768 ? '1rem' : '0' }} className="header-actions">
             <div>
@@ -317,6 +393,30 @@ const SmallReadingCard = ({ label, value, unit, status, horizontal }) => (
       <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>{value}</span>
       <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>{unit}</span>
     </div>
+  </div>
+);
+
+const HealthImpactCard = ({ level, range, color, points }) => (
+  <div className="glass-card" style={{ 
+    padding: '1.5rem', 
+    borderLeft: `4px solid ${color}`,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    position: 'relative'
+  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <h4 style={{ fontSize: '1.1rem', color: '#fff' }}>{level}</h4>
+      <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.05)', padding: '0.25rem 0.5rem', borderRadius: '6px', color: 'var(--text-secondary)' }}>{range}</span>
+    </div>
+    <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {points.map((p, i) => (
+        <li key={i} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+          <span style={{ color: color, fontSize: '1.2rem', lineHeight: '1' }}>•</span>
+          {p}
+        </li>
+      ))}
+    </ul>
   </div>
 );
 

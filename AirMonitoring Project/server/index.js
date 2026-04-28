@@ -87,6 +87,7 @@ app.get('/api/aqi/current', async (req, res) => {
           pm10: data.pm10 || 0,
           no2: data.no2 || 12,
           co: data.co || 0.8,
+          nh3: data.nh3 || data.gas3_ppm || 0.45,
           vocs: data.gas3_ppm || 0.45,
           gas1: data.gas1_ppm || 0,
           gas2: data.gas2_ppm || 0,

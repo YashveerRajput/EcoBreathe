@@ -6,7 +6,7 @@ const TOTAL_FRAMES = 80;
 const FRAME_PATH = (n) => `/motion/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
 
 const features = [
-  { icon: '🌬️', title: 'Real-Time AQI', desc: 'Continuous air quality monitoring with live PM2.5, CO₂, and VOC sensors.' },
+  { icon: '🌬️', title: 'Real-Time AQI', desc: 'Continuous air quality monitoring with live PM2.5, CO₂, and NH3 sensors.' },
   { icon: '📡', title: 'WiFi Connected', desc: 'ESP32-powered smart device syncs directly to your phone and cloud dashboard.' },
   { icon: '🔋', title: 'Battery Backup', desc: 'Built-in 12V SLA battery ensures uninterrupted monitoring and purification during power cuts.' },
   { icon: '🔵', title: 'HEPA Filtration', desc: 'True HEPA filter captures 99.97% of particles as small as 0.3 microns.' },
@@ -24,7 +24,7 @@ const stats = [
 const hardwareComponents = [
   { id: 'mcu', name: 'ESP32 Microcontroller', img: '/components/10.png', desc: 'Dual-core 240MHz processor with built-in WiFi. Acts as the brain of the device, orchestrating sensor data and cloud synchronization.' },
   { id: 'pms', name: 'PMS Particle Sensor', img: '/components/pms.png', desc: 'High-precision laser scattering sensor. Provides accurate real-time readings for PM1.0, PM2.5, and PM10 particulate matter.' },
-  { id: 'gas', name: 'Multi-Gas Sensor Array', img: '/components/7.png', desc: 'High-precision MICS-6814 sensor array. Detects harmful VOCs, Carbon Monoxide, and Nitrogen Dioxide in real-time.' },
+  { id: 'gas', name: 'Multi-Gas Sensor Array', img: '/components/7.png', desc: 'High-precision MICS-6814 sensor array. Detects harmful Ammonia, Carbon Monoxide, and Nitrogen Dioxide in real-time.' },
   { id: 'filter', name: 'True HEPA H13 Filter', img: '/components/3.png', desc: 'Medical-grade pleated filter. Captures 99.97% of airborne particles as small as 0.3 microns, including dust, pollen, smoke, and PM2.5.' },
   { id: 'display', name: 'OLED Display', img: '/components/5.png', desc: '0.96-inch SSD1306 high-contrast display. Provides immediate, on-device readouts of the current Air Quality Index.' },
   { id: 'battery', name: '12V SLA Battery Backup', img: '/components/4.png', desc: 'Reliable 12V 8Ah sealed lead-acid battery. Ensures continuous, uninterrupted air monitoring even during power outages.' },

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --bg-color: #050510;
@@ -14,7 +14,7 @@
   --poor: #f97316;
   --very-poor: #dc2626;
   --severe: #7f1d1d;
-  --font-family: 'Outfit', sans-serif;
+  --font-family: 'Inter', sans-serif;
 }
 
 * {
@@ -273,11 +273,12 @@ h1, h2, h3 {
   border-left: 6px solid transparent;
 }
 
-.scale-card.good { border-left-color: var(--success); }
-.scale-card.moderate { border-left-color: var(--warning); }
-.scale-card.poor { border-left-color: var(--poor); }
-.scale-card.very-poor { border-left-color: var(--very-poor); }
-.scale-card.severe { border-left-color: var(--severe); }
+.scale-card.good { border-left-color: #10b981; }
+.scale-card.moderate { border-left-color: #eab308; }
+.scale-card.poor { border-left-color: #f97316; }
+.scale-card.unhealthy { border-left-color: #ef4444; }
+.scale-card.severe { border-left-color: #a855f7; }
+.scale-card.hazardous { border-left-color: #7f1d1d; }
 
 .scale-card h4 {
   font-size: 1.1rem;
