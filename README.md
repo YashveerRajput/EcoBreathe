@@ -1,7 +1,8 @@
 <div align="center">
 
 <h1>🌿 EcoBreathe</h1>
-<h5>Note : The air monitoring device components , esp , firbase connections and codes are available in Eco-Breathe Full Project Documentation  </h5>
+<h5>Air Monitoring Project - Contains Landing Page and AQI Dashboard Complete Code</h5>
+<h5>Eco-Breathe Full Project Documentation - Contains the air monitoring device components , esp , firbase connections and codes.</h5>
 
 <p><strong>A high-end landing page for the EcoBreathe air purifier and a real-time air quality monitoring dashboard with live hardware sensor integration.</strong></p>
 
